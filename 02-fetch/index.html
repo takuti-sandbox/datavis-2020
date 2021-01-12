@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      const fetchText = async (url) => {
+        const response = await fetch(url);
+        return await response.text();
+      };
+
+      const csvUrl = 'https://gist.githubusercontent.com/takuti/409788f38199e8429384259d25dfc4b5/raw/8977da6e5bf29b156e5609cb6bb828ba6a31c0dc/churn.csv';
+      fetchText(csvUrl).then(text => {
+        console.log(text);
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
