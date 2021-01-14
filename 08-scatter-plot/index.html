@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Scatter plot</title>
+    <title>Scatter plot with menus</title>
     <link
       rel="preconnect"
       href="https://fonts.gstatic.com"
     />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/react-dropdown-browser@1.8.0/style.css"
       rel="stylesheet"
     />
     <style>
@@ -24,18 +28,36 @@
       }
       .tick text {
         fill: #635f5d;
+        cursor: default;
       }
-      .mark {
-      	fill: #137880;
-      }
-      .axis-label {
-      	font-size: 1.5em;
+      .axis-label,
+      .dropdown-label {
+        font-size: 2.5em;
         fill: #635f5d;
+        color: #635f5d;
+      }
+      .dropdown-label {
+        margin-left: 50px;
+      }
+      .Dropdown-root {
+        width: 300px;
+        font-size: 1.5em;
+        display: inline-block;
+      }
+      .Dropdown-menu {
+        max-height: 500px;
+      }
+      .menus-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     </style>
     <script src="https://unpkg.com/react@16.9.0/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/d3@5.11.0/dist/d3.min.js"></script>
+    <script src="https://unpkg.com/react-dropdown-browser@1.8.0/dist/umd.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
