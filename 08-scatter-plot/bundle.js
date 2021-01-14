@@ -55,7 +55,7 @@
         className: "tick", transform: ("translate(0," + (yScale(tickValue)) + ")") },
         React.createElement( 'line', { x2: innerWidth }),
         React.createElement( 'text', {
-          key: tickValue, style: { textAnchor: 'end' }, x: -tickOffset, y: yScale(tickValue), dy: ".32em" },
+          key: tickValue, style: { textAnchor: 'end' }, x: -tickOffset, dy: ".32em" },
           tickValue
         )
       )
