@@ -103,7 +103,7 @@
     var xAxisLabel = 'Petal Length';
 
     var yValue = function (d) { return d.sepal_width; };
-    var yAxisLabel = 'Sepal Length';
+    var yAxisLabel = 'Sepal Width';
 
     var xScale = d3.scaleLinear()
       .domain(d3.extent(data, xValue))

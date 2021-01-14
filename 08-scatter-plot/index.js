@@ -33,7 +33,7 @@ const App = () => {
   const xAxisLabel = 'Petal Length';
 
   const yValue = (d) => d.sepal_width;
-  const yAxisLabel = 'Sepal Length';
+  const yAxisLabel = 'Sepal Width';
 
   const xScale = scaleLinear()
     .domain(extent(data, xValue))
