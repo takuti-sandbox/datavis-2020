@@ -1,6 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { timeFormat, scaleLinear, scaleTime, extent } from 'd3';
+import {
+  timeFormat,
+  scaleLinear,
+  scaleTime,
+  extent,
+} from 'd3';
 import { useData } from './useData';
 import { AxisBottom } from './AxisBottom';
 import { AxisLeft } from './AxisLeft';
@@ -29,10 +34,10 @@ const App = () => {
   const innerHeight = height - margin.top - margin.bottom;
   const innerWidth = width - margin.right - margin.left;
 
-  const xValue = d => d.timestamp;
+  const xValue = (d) => d.timestamp;
   const xAxisLabel = 'Time';
 
-  const yValue = d => d.temperature;
+  const yValue = (d) => d.temperature;
   const yAxisLabel = 'Temperature';
 
   const xScale = scaleTime()
@@ -42,8 +47,9 @@ const App = () => {
 
   const yScale = scaleLinear()
     .domain(extent(data, yValue))
-    .range([innerHeight, 0]);
-  
+    .range([innerHeight, 0])
+    .nice();
+
   const xAxisTickFormat = timeFormat('%a');
 
   return (
@@ -85,7 +91,7 @@ const App = () => {
           yScale={yScale}
           xValue={xValue}
           yValue={yValue}
-          circleRadius={7}
+          circleRadius={3}
         />
       </g>
     </svg>

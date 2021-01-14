@@ -62,17 +62,26 @@
   };
 
   var Marks = function (ref) {
-      var data = ref.data;
-      var xScale = ref.xScale;
-      var yScale = ref.yScale;
-      var xValue = ref.xValue;
-      var yValue = ref.yValue;
-      var circleRadius = ref.circleRadius;
+    var data = ref.data;
+    var xScale = ref.xScale;
+    var yScale = ref.yScale;
+    var xValue = ref.xValue;
+    var yValue = ref.yValue;
+    var circleRadius = ref.circleRadius;
 
-      return data.map(function (d) { return (
-      React.createElement( 'circle', {
-        className: "mark", cx: xScale(xValue(d)), cy: yScale(yValue(d)), r: circleRadius })
-    ); });
+    return (
+    React.createElement( 'g', { className: "marks" },
+      React.createElement( 'path', {
+        d: d3.line()
+          .x(function (d) { return xScale(xValue(d)); })
+          .y(function (d) { return yScale(yValue(d)); })
+          .curve(d3.curveNatural)(data) }),
+      data.map(function (d) { return (
+        React.createElement( 'circle', {
+          cx: xScale(xValue(d)), cy: yScale(yValue(d)), r: circleRadius })
+      ); })
+    )
+  );
   };
 
   var width = 960;
@@ -111,8 +120,9 @@
 
     var yScale = d3.scaleLinear()
       .domain(d3.extent(data, yValue))
-      .range([innerHeight, 0]);
-    
+      .range([innerHeight, 0])
+      .nice();
+
     var xAxisTickFormat = d3.timeFormat('%a');
 
     return (
@@ -132,7 +142,7 @@
             yAxisLabel
           ),
           React__default['default'].createElement( Marks, {
-            data: data, xScale: xScale, yScale: yScale, xValue: xValue, yValue: yValue, circleRadius: 7 })
+            data: data, xScale: xScale, yScale: yScale, xValue: xValue, yValue: yValue, circleRadius: 3 })
         )
       )
     );
