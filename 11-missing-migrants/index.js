@@ -32,7 +32,8 @@ const App = () => {
   return (
     <svg width={width} height={height}>
       <BubbleMap
-        data={filteredData}
+        data={data}
+        filteredData={filteredData}
         worldAtlas={worldAtlas}
       />
       <g

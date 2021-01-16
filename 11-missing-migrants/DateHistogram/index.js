@@ -11,7 +11,7 @@ import {
   select,
   event,
 } from 'd3';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { AxisBottom } from './AxisBottom';
 import { AxisLeft } from './AxisLeft';
 import { Marks } from './Marks';
@@ -19,6 +19,12 @@ import { Marks } from './Marks';
 const margin = { top: 0, right: 30, bottom: 20, left: 50 };
 const xAxisLabelOffset = 50;
 const yAxisLabelOffset = 30;
+const xAxisTickFormat = timeFormat('%m/%d/%Y');
+
+const xAxisLabel = 'Time';
+
+const yValue = (d) => d['Total Dead and Missing'];
+const yAxisLabel = 'Total Dead and Missing';
 
 export const DateHistogram = ({
   data,
@@ -30,33 +36,35 @@ export const DateHistogram = ({
   const innerHeight = height - margin.top - margin.bottom;
   const innerWidth = width - margin.left - margin.right;
 
-  const xAxisTickFormat = timeFormat('%m/%d/%Y');
+  const xScale = useMemo(
+    () => 
+      scaleTime()
+        .domain(extent(data, xValue))
+        .range([0, innerWidth])
+        .nice(), 
+    [data, xValue, innerWidth]
+  );
 
-  const xAxisLabel = 'Time';
+  const binnedData = useMemo(() => {
+    const [start, stop] = xScale.domain();
+    return bin()
+      .value(xValue)
+      .domain(xScale.domain())
+      .thresholds(timeMonths(start, stop))(data)
+      .map((array) => ({
+        y: sum(array, yValue),
+        x0: array.x0,
+        x1: array.x1,
+      }));
+  }, [xValue, xScale, data, yValue]);
 
-  const yValue = (d) => d['Total Dead and Missing'];
-  const yAxisLabel = 'Total Dead and Missing';
-
-  const xScale = scaleTime()
-    .domain(extent(data, xValue))
-    .range([0, innerWidth])
-    .nice();
-
-  const [start, stop] = xScale.domain();
-
-  const binnedData = bin()
-    .value(xValue)
-    .domain(xScale.domain())
-    .thresholds(timeMonths(start, stop))(data)
-    .map((array) => ({
-      y: sum(array, yValue),
-      x0: array.x0,
-      x1: array.x1,
-    }));
-
-  const yScale = scaleLinear()
-    .domain([0, max(binnedData, (d) => d.y)])
-    .range([innerHeight, 0]);
+  const yScale = useMemo(
+    () =>
+      scaleLinear()
+        .domain([0, max(binnedData, (d) => d.y)])
+        .range([innerHeight, 0]),
+    [binnedData, innerHeight]
+  );
 
   const brushRef = useRef();
 

@@ -69,12 +69,17 @@
 
     return (
     React.createElement( 'g', { className: "marks" },
-      React.createElement( 'path', { className: "sphere", d: path({ type: 'Sphere' }) }),
-      React.createElement( 'path', { className: "graticule", d: path(graticule()) }),
-      land.features.map(function (feature) { return (
-        React.createElement( 'path', { className: "land", d: path(feature) })
-      ); }),
-      React.createElement( 'path', { className: "interiors", d: path(interiors) }),
+      React$1.useMemo(
+        function () { return React.createElement( React.Fragment, null,
+            React.createElement( 'path', { className: "sphere", d: path({ type: 'Sphere' }) }),
+            React.createElement( 'path', { className: "graticule", d: path(graticule()) }),
+            land.features.map(function (feature) { return (
+              React.createElement( 'path', { className: "land", d: path(feature) })
+            ); }),
+            React.createElement( 'path', { className: "interiors", d: path(interiors) })
+          ); },
+        [path, graticule, land, interiors]
+      ),
       data.map(function (d) {
         var ref = projection(d.coords);
         var x = ref[0];
@@ -87,20 +92,24 @@
   );
   };
 
+  var sizeValue = function (d) { return d['Total Dead and Missing']; };
+  var maxRadius = 15;
+
   var BubbleMap = function (ref) {
     var data = ref.data;
+    var filteredData = ref.filteredData;
     var worldAtlas = ref.worldAtlas;
 
-    var sizeValue = function (d) { return d['Total Dead and Missing']; };
-    var maxRadius = 15;
-
-    var sizeScale = d3.scaleSqrt()
-      .domain([0, d3.max(data, sizeValue)])
-      .range([0, maxRadius]);
+    var sizeScale = React$1.useMemo(
+      function () { return d3.scaleSqrt()
+          .domain([0, d3.max(data, sizeValue)])
+          .range([0, maxRadius]); },
+      [data, sizeValue, maxRadius]
+    );    
 
     return (
       React__default['default'].createElement( Marks, {
-        worldAtlas: worldAtlas, data: data, sizeScale: sizeScale, sizeValue: sizeValue })
+        worldAtlas: worldAtlas, data: filteredData, sizeScale: sizeScale, sizeValue: sizeValue })
     );
   };
 
@@ -155,6 +164,12 @@
   var margin = { top: 0, right: 30, bottom: 20, left: 50 };
   var xAxisLabelOffset = 50;
   var yAxisLabelOffset = 30;
+  var xAxisTickFormat = d3.timeFormat('%m/%d/%Y');
+
+  var xAxisLabel = 'Time';
+
+  var yValue = function (d) { return d['Total Dead and Missing']; };
+  var yAxisLabel = 'Total Dead and Missing';
 
   var DateHistogram = function (ref) {
     var data = ref.data;
@@ -166,35 +181,35 @@
     var innerHeight = height - margin.top - margin.bottom;
     var innerWidth = width - margin.left - margin.right;
 
-    var xAxisTickFormat = d3.timeFormat('%m/%d/%Y');
+    var xScale = React$1.useMemo(
+      function () { return d3.scaleTime()
+          .domain(d3.extent(data, xValue))
+          .range([0, innerWidth])
+          .nice(); }, 
+      [data, xValue, innerWidth]
+    );
 
-    var xAxisLabel = 'Time';
+    var binnedData = React$1.useMemo(function () {
+      var ref = xScale.domain();
+      var start = ref[0];
+      var stop = ref[1];
+      return d3.histogram()
+        .value(xValue)
+        .domain(xScale.domain())
+        .thresholds(d3.timeMonths(start, stop))(data)
+        .map(function (array) { return ({
+          y: d3.sum(array, yValue),
+          x0: array.x0,
+          x1: array.x1,
+        }); });
+    }, [xValue, xScale, data, yValue]);
 
-    var yValue = function (d) { return d['Total Dead and Missing']; };
-    var yAxisLabel = 'Total Dead and Missing';
-
-    var xScale = d3.scaleTime()
-      .domain(d3.extent(data, xValue))
-      .range([0, innerWidth])
-      .nice();
-
-    var ref$1 = xScale.domain();
-    var start = ref$1[0];
-    var stop = ref$1[1];
-
-    var binnedData = d3.histogram()
-      .value(xValue)
-      .domain(xScale.domain())
-      .thresholds(d3.timeMonths(start, stop))(data)
-      .map(function (array) { return ({
-        y: d3.sum(array, yValue),
-        x0: array.x0,
-        x1: array.x1,
-      }); });
-
-    var yScale = d3.scaleLinear()
-      .domain([0, d3.max(binnedData, function (d) { return d.y; })])
-      .range([innerHeight, 0]);
+    var yScale = React$1.useMemo(
+      function () { return d3.scaleLinear()
+          .domain([0, d3.max(binnedData, function (d) { return d.y; })])
+          .range([innerHeight, 0]); },
+      [binnedData, innerHeight]
+    );
 
     var brushRef = React$1.useRef();
 
@@ -265,7 +280,7 @@
     return (
       React__default['default'].createElement( 'svg', { width: width, height: height },
         React__default['default'].createElement( BubbleMap, {
-          data: filteredData, worldAtlas: worldAtlas }),
+          data: data, filteredData: filteredData, worldAtlas: worldAtlas }),
         React__default['default'].createElement( 'g', {
           transform: ("translate(0," + (height - dateHistogramSize * height) + ")") },
           React__default['default'].createElement( DateHistogram, {
