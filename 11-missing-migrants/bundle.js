@@ -160,13 +160,14 @@
     var data = ref.data;
     var width = ref.width;
     var height = ref.height;
+    var setBrushExtent = ref.setBrushExtent;
+    var xValue = ref.xValue;
 
     var innerHeight = height - margin.top - margin.bottom;
     var innerWidth = width - margin.left - margin.right;
 
     var xAxisTickFormat = d3.timeFormat('%m/%d/%Y');
 
-    var xValue = function (d) { return d['Reported Date']; };
     var xAxisLabel = 'Time';
 
     var yValue = function (d) { return d['Total Dead and Missing']; };
@@ -195,6 +196,21 @@
       .domain([0, d3.max(binnedData, function (d) { return d.y; })])
       .range([innerHeight, 0]);
 
+    var brushRef = React$1.useRef();
+
+    React$1.useEffect(function () {
+      var brush = d3.brushX().extent([
+        [0, 0],
+        [innerWidth, innerHeight] ]);
+      brush(d3.select(brushRef.current));
+      brush.on('brush end', function () {
+        setBrushExtent(
+          d3.event.selection &&
+            d3.event.selection.map(xScale.invert)
+        );
+      });
+    }, [innerWidth, innerHeight]);
+
     return (
       React.createElement( React.Fragment, null,
         React.createElement( 'rect', { width: width, height: height, fill: "white" }),
@@ -213,7 +229,8 @@
             xAxisLabel
           ),
           React.createElement( Marks$1, {
-            data: binnedData, xScale: xScale, yScale: yScale, tooltipFormat: function (d) { return d; }, innerHeight: innerHeight })
+            data: binnedData, xScale: xScale, yScale: yScale, tooltipFormat: function (d) { return d; }, innerHeight: innerHeight }),
+          React.createElement( 'g', { ref: brushRef })
         )
       )
     );
@@ -223,19 +240,36 @@
   var height = 500;
   var dateHistogramSize = 0.2;
 
+  var xValue = function (d) { return d['Reported Date']; };
+
   var App = function () {
     var worldAtlas = useWorldAtlas();
     var data = useData();
+    var ref = React$1.useState();
+    var brushExtent = ref[0];
+    var setBrushExtent = ref[1];
 
     if (!worldAtlas || !data) {
       return React__default['default'].createElement( 'pre', null, "Loading...." );
     }
 
+    var filteredData = brushExtent
+      ? data.filter(function (d) {
+          var date = xValue(d);
+          return (
+            brushExtent[0] < date && date < brushExtent[1]
+          );
+        })
+      : data;
+
     return (
       React__default['default'].createElement( 'svg', { width: width, height: height },
-        React__default['default'].createElement( BubbleMap, { data: data, worldAtlas: worldAtlas }),
-        React__default['default'].createElement( 'g', { transform: ("translate(0," + (height - dateHistogramSize * height) + ")") },
-          React__default['default'].createElement( DateHistogram, { data: data, width: width, height: dateHistogramSize * height })
+        React__default['default'].createElement( BubbleMap, {
+          data: filteredData, worldAtlas: worldAtlas }),
+        React__default['default'].createElement( 'g', {
+          transform: ("translate(0," + (height - dateHistogramSize * height) + ")") },
+          React__default['default'].createElement( DateHistogram, {
+            data: data, width: width, height: dateHistogramSize * height, setBrushExtent: setBrushExtent, xValue: xValue })
         )
       )
     );

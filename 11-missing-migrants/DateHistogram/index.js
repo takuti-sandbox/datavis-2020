@@ -7,7 +7,11 @@ import {
   histogram as bin,
   timeMonths,
   sum,
+  brushX,
+  select,
+  event,
 } from 'd3';
+import { useRef, useEffect } from 'react';
 import { AxisBottom } from './AxisBottom';
 import { AxisLeft } from './AxisLeft';
 import { Marks } from './Marks';
@@ -16,13 +20,18 @@ const margin = { top: 0, right: 30, bottom: 20, left: 50 };
 const xAxisLabelOffset = 50;
 const yAxisLabelOffset = 30;
 
-export const DateHistogram = ({ data, width, height }) => {
+export const DateHistogram = ({
+  data,
+  width,
+  height,
+  setBrushExtent,
+  xValue,
+}) => {
   const innerHeight = height - margin.top - margin.bottom;
   const innerWidth = width - margin.left - margin.right;
 
   const xAxisTickFormat = timeFormat('%m/%d/%Y');
 
-  const xValue = (d) => d['Reported Date'];
   const xAxisLabel = 'Time';
 
   const yValue = (d) => d['Total Dead and Missing'];
@@ -48,6 +57,22 @@ export const DateHistogram = ({ data, width, height }) => {
   const yScale = scaleLinear()
     .domain([0, max(binnedData, (d) => d.y)])
     .range([innerHeight, 0]);
+
+  const brushRef = useRef();
+
+  useEffect(() => {
+    const brush = brushX().extent([
+      [0, 0],
+      [innerWidth, innerHeight],
+    ]);
+    brush(select(brushRef.current));
+    brush.on('brush end', () => {
+      setBrushExtent(
+        event.selection &&
+          event.selection.map(xScale.invert)
+      );
+    });
+  }, [innerWidth, innerHeight]);
 
   return (
     <>
@@ -90,6 +115,7 @@ export const DateHistogram = ({ data, width, height }) => {
           tooltipFormat={(d) => d}
           innerHeight={innerHeight}
         />
+        <g ref={brushRef}></g>
       </g>
     </>
   );
