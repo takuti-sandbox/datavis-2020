@@ -1,4 +1,9 @@
-https://takuti-sandbox.github.io/datavis-2020/
+Datavis 2020
+===
+
+A collection of visualizations that I created for [Datavis 2020](https://datavis.tech/datavis-2020/), a free online course about D3.js and React.
+
+- [Demo](https://takuti-sandbox.github.io/datavis-2020/)
 
 ```
 $ npm i
