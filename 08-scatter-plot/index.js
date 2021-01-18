@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import {
-  scaleBand,
   scaleLinear,
   scaleOrdinal,
   extent,

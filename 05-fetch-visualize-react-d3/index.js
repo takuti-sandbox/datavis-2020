@@ -1,6 +1,5 @@
 import React, {
   useState,
-  useCallback,
   useEffect,
 } from 'react';
 import ReactDOM from 'react-dom';
