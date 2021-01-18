@@ -1,10 +1,9 @@
 https://takuti-sandbox.github.io/datavis-2020/
 
 ```
-$ cd /path-to-project
 $ npm i
 $ npm run build
-$ open index.html
+$ open /path-to-project-dir/index.html
 ```
 
   1. [Faces](./01-face)

@@ -153,4 +153,3 @@
   ReactDOM__default['default'].render(React__default['default'].createElement( App, null ), rootElement);
 
 }(React, ReactDOM, d3, topojson));
-//# sourceMappingURL=bundle.js.map
